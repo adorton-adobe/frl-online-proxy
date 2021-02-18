@@ -42,6 +42,10 @@ pub enum Command {
         #[structopt(long, parse(try_from_str))]
         /// Enable SSL? (true or false)
         ssl: Option<bool>,
+
+        #[structopt(short, long)]
+        /// Host port
+        port: Option<String>,
     },
     /// Interactively create the config file
     Configure,

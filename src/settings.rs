@@ -21,6 +21,7 @@ pub struct Proxy {
     pub host: String,
     pub remote_host: String,
     pub ssl: bool,
+    pub port: String,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -122,10 +123,15 @@ impl Settings {
             "The host and port of the proxy must match the one in your license package."
         );
         let choice: String = Input::new()
-            .with_prompt("Host (and optional :port) to listen on")
+            .with_prompt("Host IP (without port) to listen on")
             .with_initial_text(&self.proxy.host)
             .interact_text()?;
         self.proxy.host = choice;
+        let choice: String = Input::new()
+            .with_prompt("Host port")
+            .with_initial_text(&self.proxy.port)
+            .interact_text()?;
+        self.proxy.port = choice;
         eprintln!("Your proxy server must contact one of two Adobe licensing servers.");
         eprintln!("Use the variable IP server unless your firewall doesn't permit it.");
         let choices = vec![
@@ -280,6 +286,9 @@ impl Settings {
             }
             std::fs::metadata(path)
                 .wrap_err(format!("Invalid certificate path: {}", path))?;
+        }
+        if self.proxy.host.contains(":") {
+            return Err(eyre!("Host must not contain a port (use the 'port' config option)"));
         }
         if let ProxyMode::Cache | ProxyMode::Store | ProxyMode::Forward = self.proxy.mode
         {

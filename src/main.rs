@@ -34,12 +34,15 @@ async fn main() -> Result<()> {
     // make sure we have a config file.  if not, make one
     if let Some(mut conf) = Settings::load_config(&args)? {
         match args.cmd {
-            cli::Command::Start { mode, ssl } => {
+            cli::Command::Start { mode, ssl, port } => {
                 if let Some(mode) = mode {
                     conf.proxy.mode = mode.as_str().try_into()?;
                 };
                 if let Some(ssl) = ssl {
                     conf.proxy.ssl = ssl;
+                }
+                if let Some(port) = port {
+                    conf.proxy.port = port;
                 }
                 conf.validate()?;
                 logging::init(&conf)?;
